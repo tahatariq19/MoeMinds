@@ -155,6 +155,8 @@ async def generate_ai_response(user_id, user_message_content, user_display_name)
         print(f"Error generating AI response: {e}")
         return "I am unable to respond right now. Please try again later."
 
+# --- Discord Bot Events ---
+
 @bot.event
 async def on_ready():
     """
@@ -168,6 +170,45 @@ async def on_ready():
         print(f"Synced {len(synced)} command(s)")
     except Exception as e:
         print(f"Error syncing commands: {e}")
+
+@bot.event
+async def on_message(message):
+    """
+    Handles incoming messages to the Discord bot for active engagement or mentions.
+    Slash commands are handled by their respective decorators and do not pass through here.
+    """
+    # Ignore messages from the bot itself
+    if message.author == bot.user:
+        return
+
+    # No need to process prefix commands as they are removed.
+    # The bot will only respond to mentions or active engagement now, besides slash commands.
+
+    user_id = str(message.author.id)
+    user_data = await get_user_data(user_id)
+    active_engagement = user_data.get('active_engagement', False)
+    current_time = time.time()
+    
+    # Get the user's display name
+    user_display_name = message.author.display_name
+
+    respond_to_message = False
+
+    # Check for active engagement or mentions
+    if bot.user.mentioned_in(message):
+        respond_to_message = True
+    elif active_engagement:
+        # Check cooldown for active engagement to prevent spam
+        if user_id not in last_message_times or (current_time - last_message_times[user_id]) > ACTIVE_ENGAGEMENT_COOLDOWN:
+            respond_to_message = True
+            last_message_times[user_id] = current_time
+
+    if respond_to_message:
+        # Generate AI response, passing the user's display name
+        async with message.channel.typing(): # Show "bot is typing..."
+            ai_response = await generate_ai_response(user_id, message.content, user_display_name)
+            await message.channel.send(ai_response)
+
 
 # --- Run the bot ---
 if __name__ == '__main__':
