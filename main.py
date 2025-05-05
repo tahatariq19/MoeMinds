@@ -210,6 +210,41 @@ async def on_message(message):
             await message.channel.send(ai_response)
 
 
+# --- Discord Bot Slash Commands ---
+
+@bot.tree.command(name='set_character', description='Set the bot\'s personality.')
+@app_commands.describe(character_name="The name of the character personality to set (e.g., 'makise kurisu', 'erza scarlet', 'ed')")
+async def set_character(interaction: discord.Interaction, character_name: str):
+    """
+    Sets the AI's personality to a specified character using a slash command.
+    Upon setting, the history is reset and immediately primed with the new character's instruction.
+    """
+    user_id = str(interaction.user.id)
+    if character_name.lower() in CHARACTER_PROFILES:
+        user_data = await get_user_data(user_id)
+        user_data['character'] = character_name.lower()
+        
+        # Clear history when character changes to avoid context issues
+        user_data['history'] = []
+        
+        # Explicitly prime the history with the new character's system instruction
+        character_profile = CHARACTER_PROFILES.get(character_name.lower(), CHARACTER_PROFILES[DEFAULT_CHARACTER])
+        system_instruction = (
+            f"{character_profile['description']} You are talking to a user named {interaction.user.display_name}. "
+            "Keep your responses concise and to the point, but provide more detail if the conversation requires it. "
+            "Aim to match the general length and depth of the user's messages, rather than always providing verbose answers."
+        )
+        user_data['history'].append({'role': 'user', 'parts': [{'text': system_instruction}]})
+        user_data['history'].append({'role': 'model', 'parts': [{'text': "Understood. I will now respond as specified."}]})
+
+        await update_user_data(user_id, user_data)
+        await interaction.response.send_message(f"My personality has been set to **{character_name.capitalize()}** for you, {interaction.user.mention}!")
+        await interaction.followup.send(f"Conversation history has been reset, and I'm ready to chat as **{character_name.capitalize()}**!")
+    else:
+        available_characters = ", ".join([name.capitalize() for name in CHARACTER_PROFILES.keys()])
+        await interaction.response.send_message(f"Sorry, I don't know that character. Available characters: {available_characters}")
+
+
 # --- Run the bot ---
 if __name__ == '__main__':
     try:
