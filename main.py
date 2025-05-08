@@ -244,6 +244,22 @@ async def set_character(interaction: discord.Interaction, character_name: str):
         available_characters = ", ".join([name.capitalize() for name in CHARACTER_PROFILES.keys()])
         await interaction.response.send_message(f"Sorry, I don't know that character. Available characters: {available_characters}")
 
+@bot.tree.command(name='toggle_engagement', description='Toggle active conversation engagement (on/off).')
+async def toggle_engagement(interaction: discord.Interaction):
+    """
+    Toggles the active conversation engagement mode for the user using a slash command.
+    """
+    user_id = str(interaction.user.id)
+    user_data = await get_user_data(user_id)
+    user_data['active_engagement'] = not user_data.get('active_engagement', False)
+    await update_user_data(user_id, user_data)
+    status = "ON" if user_data['active_engagement'] else "OFF"
+    await interaction.response.send_message(f"Active conversation engagement for {interaction.user.mention} is now: **{status}**.")
+    if status == "OFF":
+        await interaction.followup.send("I will now only respond when directly mentioned (@BotName).")
+    else:
+        await interaction.followup.send("I will now actively engage in conversation (with a cooldown to prevent spam).")
+
 
 # --- Run the bot ---
 if __name__ == '__main__':
