@@ -260,6 +260,28 @@ async def toggle_engagement(interaction: discord.Interaction):
     else:
         await interaction.followup.send("I will now actively engage in conversation (with a cooldown to prevent spam).")
 
+@bot.tree.command(name='reset_chat', description='Resets your conversation history with the bot.')
+async def reset_chat(interaction: discord.Interaction):
+    """
+    Resets the conversation history for the requesting user using a slash command.
+    """
+    user_id = str(interaction.user.id)
+    user_data = await get_user_data(user_id)
+    user_data['history'] = []
+    # After reset, prime the history with the current character's system instruction
+    character_name = user_data.get('character', DEFAULT_CHARACTER)
+    character_profile = CHARACTER_PROFILES.get(character_name.lower(), CHARACTER_PROFILES[DEFAULT_CHARACTER])
+    system_instruction = (
+        f"{character_profile['description']} You are talking to a user named {interaction.user.display_name}. "
+        "Keep your responses concise and to the point, but provide more detail if the conversation requires it. "
+        "Aim to match the general length and depth of the user's messages, rather than always providing verbose answers."
+    )
+    user_data['history'].append({'role': 'user', 'parts': [{'text': system_instruction}]})
+    user_data['history'].append({'role': 'model', 'parts': [{'text': "Understood. I will now respond as specified."}]})
+
+    await update_user_data(user_id, user_data)
+    await interaction.response.send_message(f"Your conversation history has been reset, {interaction.user.mention}. We can start fresh!")
+
 
 # --- Run the bot ---
 if __name__ == '__main__':
