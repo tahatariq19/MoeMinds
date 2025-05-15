@@ -282,6 +282,16 @@ async def reset_chat(interaction: discord.Interaction):
     await update_user_data(user_id, user_data)
     await interaction.response.send_message(f"Your conversation history has been reset, {interaction.user.mention}. We can start fresh!")
 
+@bot.tree.command(name='my_character', description='Shows your current character personality.')
+async def my_character(interaction: discord.Interaction):
+    """
+    Shows the user their currently set character personality using a slash command.
+    """
+    user_id = str(interaction.user.id)
+    user_data = await get_user_data(user_id)
+    character = user_data.get('character', DEFAULT_CHARACTER).capitalize()
+    await interaction.response.send_message(f"Your current character personality is set to: **{character}**.")
+
 
 # --- Run the bot ---
 if __name__ == '__main__':
