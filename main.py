@@ -292,6 +292,18 @@ async def my_character(interaction: discord.Interaction):
     character = user_data.get('character', DEFAULT_CHARACTER).capitalize()
     await interaction.response.send_message(f"Your current character personality is set to: **{character}**.")
 
+@bot.tree.command(name='list_characters', description='View all available character personalities.')
+async def list_characters(interaction: discord.Interaction):
+    """
+    Lists all available character personalities that users can choose from.
+    """
+    if CHARACTER_PROFILES:
+        character_names = sorted([name.capitalize() for name in CHARACTER_PROFILES.keys()])
+        characters_list = "\n".join(character_names)
+        await interaction.response.send_message(f"**Available Character Personalities:**\n```\n{characters_list}\n```\nUse `/set_character <name>` to choose one.")
+    else:
+        await interaction.response.send_message("No character personalities are currently defined.")
+
 
 # --- Run the bot ---
 if __name__ == '__main__':
