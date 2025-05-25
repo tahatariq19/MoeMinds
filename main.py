@@ -304,6 +304,30 @@ async def list_characters(interaction: discord.Interaction):
     else:
         await interaction.response.send_message("No character personalities are currently defined.")
 
+@bot.tree.command(name='define_character', description='Define a new custom character personality.')
+@app_commands.describe(
+    character_name="The name for your new character (e.g., 'wise old wizard')",
+    description="A detailed description of the character's personality for the AI to mimic."
+)
+async def define_character(interaction: discord.Interaction, character_name: str, description: str):
+    """
+    Allows a user to define a new custom character personality for the AI.
+    """
+    if character_name.lower() in CHARACTER_PROFILES:
+        await interaction.response.send_message(f"A character with the name '{character_name}' already exists. Please choose a different name.")
+    else:
+        # Add the new character to the CHARACTER_PROFILES dictionary
+        CHARACTER_PROFILES[character_name.lower()] = {
+            "description": description,
+            "name_aliases": [character_name.lower()] # Start with the given name as an alias
+        }
+        await interaction.response.send_message(
+            f"Character **'{character_name.capitalize()}'** has been successfully defined! "
+            f"You can now switch to this personality using `/set_character {character_name.lower()}`."
+        )
+        # Optionally, you might want to force a resync of commands if character options are dynamic
+        # For now, it's enough that the character exists in the dictionary.
+
 
 # --- Run the bot ---
 if __name__ == '__main__':
