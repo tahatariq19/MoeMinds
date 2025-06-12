@@ -1,11 +1,6 @@
 import discord
 from discord.ext import commands
-from discord import app_commands # Import app_commands for slash commands
-from google import genai
-import json
-import asyncio
-import time
-import os
+from config import DISCORD_BOT_TOKEN
 
 #Define intents - Crucial for receiving message content
 intents = discord.Intents.default()
@@ -16,7 +11,6 @@ intents.members = True # Enable members intent for user information
 bot = commands.Bot(command_prefix=None, intents=intents)
 
 # --- Discord Bot Events ---
-
 @bot.event
 async def on_ready():
     """
@@ -31,8 +25,11 @@ async def on_ready():
     except Exception as e:
         print(f"Error syncing commands: {e}")
 
-# --- Run the bot ---
+    # Load cogs
+    await bot.load_extension("cogs.ai_commands")
+    await bot.load_extension("cogs.character_manager")
 
+# --- Run the bot ---
 if __name__ == '__main__':
     try:
         bot.run(DISCORD_BOT_TOKEN)
