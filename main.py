@@ -18,16 +18,16 @@ async def on_ready():
     """
     print(f'Logged in as {bot.user} (ID: {bot.user.id})')
     print('------')
+    # Load cogs
+    await bot.load_extension("cogs.ai_commands")
+    await bot.load_extension("cogs.character_manager")
+
     # Sync slash commands with Discord
     try:
         synced = await bot.tree.sync()
         print(f"Synced {len(synced)} command(s)")
     except Exception as e:
         print(f"Error syncing commands: {e}")
-
-    # Load cogs
-    await bot.load_extension("cogs.ai_commands")
-    await bot.load_extension("cogs.character_manager")
 
 # --- Run the bot ---
 if __name__ == '__main__':
