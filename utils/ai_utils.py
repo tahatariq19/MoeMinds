@@ -1,10 +1,9 @@
-import os
 import asyncio
 from google import genai
-from config import CHARACTER_PROFILES, DEFAULT_CHARACTER, MAX_HISTORY_LENGTH
+from config import CHARACTER_PROFILES, DEFAULT_CHARACTER, MAX_HISTORY_LENGTH, AI_KEY, GEMINI_MODEL
 from utils.data_manager import get_user_data, update_user_data
 
-client = genai.Client(api_key=os.getenv("AI_KEY"))
+client = genai.Client(api_key=AI_KEY)
 
 async def generate_ai_response(user_id, user_message_content, user_display_name):
     """
@@ -37,7 +36,7 @@ async def generate_ai_response(user_id, user_message_content, user_display_name)
     try:
         # Start a new chat session with the full historical context
         # If initial_history exists, it primes the model with personality
-        chat = client.chats.create(model='gemini-2.5-flash-lite-preview-06-17', history=initial_history + chat_history)
+        chat = client.chats.create(model=GEMINI_MODEL, history=initial_history + chat_history)
 
         # Send only the new user message
         response = await asyncio.to_thread(chat.send_message, user_message_content)
