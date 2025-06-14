@@ -14,7 +14,7 @@ async def get_user_data(user_id):
     Ensures history and other defaults are set if user is new.
     """
     if user_id not in _local_user_data_store:
-        _local_user_data_store[user_id] = {'history': [], 'active_engagement': True, 'character': DEFAULT_CHARACTER}
+        _local_user_data_store[user_id] = {'history': [], 'active_engagement': False, 'character': DEFAULT_CHARACTER}
     return _local_user_data_store[user_id]
 
 async def update_user_data(user_id, data):
