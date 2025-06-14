@@ -5,6 +5,8 @@ load_dotenv()
 
 # --- Discord Bot Configuration ---
 DISCORD_BOT_TOKEN = os.getenv("DISCORD_TOKEN")
+
+# --- Gemini Ai Configuration ---
 AI_KEY = os.getenv("AI_KEY")
 GEMINI_MODEL = 'gemini-2.5-flash-lite-preview-06-17'
 

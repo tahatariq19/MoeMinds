@@ -8,7 +8,7 @@ intents.message_content = True # Enable message content intent for regular messa
 intents.members = True # Enable members intent for user information
 
 # Initialize the bot without a command_prefix for slash command exclusive operation
-bot = commands.Bot(command_prefix=None, intents=intents)
+bot = commands.Bot(command_prefix=lambda bot, message: [], intents=intents)
 
 # --- Discord Bot Events ---
 @bot.event
